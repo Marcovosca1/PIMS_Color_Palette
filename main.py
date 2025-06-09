@@ -1,8 +1,10 @@
-import customtkinter as ctk
 from CTkColorPicker import *
-import random
 from colors import *
 from tkinter import filedialog
+import customtkinter as ctk
+import random
+import json
+import csv
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -46,6 +48,10 @@ class ColorApp(ctk.CTk):
 
         self.generate_palette()
 
+        # Export buton
+        self.export_btn = ctk.CTkButton(self, text="Export Palettes", command=self.export_palettes)
+        self.export_btn.grid(row=1, column=0, columnspan=2, pady=10) 
+
     def increase_colors(self):
         if self.num_colors < 8:
             self.num_colors += 1
@@ -60,6 +66,29 @@ class ColorApp(ctk.CTk):
         self.base_color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
         self.color_display.configure(text=self.base_color, fg_color=self.base_color)
         self.generate_palette()
+
+    def copy_to_clipboard(self, text, widget):
+        self.clipboard_clear()
+        self.clipboard_append(text)
+        self.update()  # Required on some systems to finalize the clipboard contents
+
+        # "Copied!" visual label
+        copied_label = ctk.CTkLabel(
+            master=self,
+            text="Copied!",
+            fg_color="transparent",
+            text_color="green",
+            font=("Arial", 14, "bold")
+        )
+
+        # Position near the widget (above)
+        x = widget.winfo_rootx() - self.winfo_rootx()
+        y = widget.winfo_rooty() - self.winfo_rooty() - 25
+
+        copied_label.place(x=x, y=y)
+
+        # Auto-destroy after 1.5 seconds
+        copied_label.after(1500, copied_label.destroy)
 
     def generate_palette(self):
         for widget in self.palette_frame.winfo_children():
@@ -97,12 +126,48 @@ class ColorApp(ctk.CTk):
                     corner_radius=12
                 )
                 swatch.grid(row=row_idx, column=col_idx + 1, padx=5, pady=5, sticky="nsew")  # +1 pt. a lăsa loc titlului
+                swatch.bind("<Button-1>", lambda e, c=color, w=swatch: self.copy_to_clipboard(c, w))
 
             # Flexibilitate la scalare
             for i in range(len(colors) + 1):
                 self.palette_frame.columnconfigure(i, weight=1)
    
+    def export_palettes(self):
+        palettes = {
+            "Analog": generate_analog_palette(self.base_color, self.num_colors),
+            "Complementary": generate_complementary_palette(self.base_color),
+            "Split Complementary": generate_split_complementary_palette(self.base_color),
+            "Triadic": generate_triadic_palette(self.base_color),
+            "Tetradic": generate_tetradic_palette(self.base_color),
+        }
 
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text Files", "*.txt"), ("JSON Files", "*.json"), ("CSV Files", "*.csv")],
+            title="Save Palette"
+        )
+
+        if not file_path:
+            return
+
+        if file_path.endswith(".txt"):
+            with open(file_path, "w") as file:
+                for name, colors in palettes.items():
+                    file.write(f"{name} Palette:\n")
+                    for color in colors:
+                        file.write(f"{color}\n")
+                    file.write("\n")
+        elif file_path.endswith(".json"):
+            with open(file_path, "w") as file:
+                json.dump(palettes, file, indent=4)
+        elif file_path.endswith(".csv"):
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                for name, colors in palettes.items():
+                    writer.writerow([name])
+                    for color in colors:
+                        writer.writerow([color])
+                    writer.writerow([])
 
 if __name__ == "__main__":
     app = ColorApp()
