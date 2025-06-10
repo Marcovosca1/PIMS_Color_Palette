@@ -1,4 +1,3 @@
-from CTkColorPicker import *
 from colors import *
 from tkinter import filedialog
 import customtkinter as ctk
@@ -12,8 +11,10 @@ ctk.set_default_color_theme("dark-blue")
 class ColorApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.bind("<Escape>", lambda e: self.attributes("-fullscreen", False))
+        self.bind("<F11>", lambda e: self.attributes("-fullscreen", not self.attributes("-fullscreen")))
         self.title("Palette Generator")
-        self.geometry("1920x1080")
+        self.geometry("1280x720")
         self.configure(padx=20, pady=20)
 
         # Setări culoare de bază
@@ -21,9 +22,10 @@ class ColorApp(ctk.CTk):
         self.num_colors = 5
         self.num_palettes = 5
 
-        # UI Elemente
+        # Main Color
         self.color_display = ctk.CTkLabel(self, text=self.base_color, width=100, height=100, fg_color=self.base_color, text_color=get_text_color(self.base_color), corner_radius=12)
         self.color_display.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+        self.color_display.bind("<Button-1>", lambda e: self.open_color_picker())
 
         # Număr culori
         self.color_count_label = ctk.CTkLabel(self, text="Number of colors")
@@ -52,6 +54,14 @@ class ColorApp(ctk.CTk):
         self.export_btn = ctk.CTkButton(self, text="Export Palettes", command=self.export_palettes)
         self.export_btn.grid(row=1, column=0, columnspan=2, pady=10) 
 
+    def open_color_picker(self, event=None):
+        pick_color = AskColor()
+        color = pick_color.get()
+        if color:
+            self.base_color = color
+            self.color_display.configure(text=self.base_color, fg_color=self.base_color)
+            self.generate_palette()
+
     def increase_colors(self):
         if self.num_colors < 8:
             self.num_colors += 1
@@ -70,7 +80,7 @@ class ColorApp(ctk.CTk):
     def copy_to_clipboard(self, text, widget):
         self.clipboard_clear()
         self.clipboard_append(text)
-        self.update()  # Required on some systems to finalize the clipboard contents
+        self.update()  # Unele sisteme necesită actualizarea clipboard-ului
 
         # "Copied!" visual label
         copied_label = ctk.CTkLabel(
@@ -81,7 +91,7 @@ class ColorApp(ctk.CTk):
             font=("Arial", 14, "bold")
         )
 
-        # Position near the widget (above)
+        # Sa il pun sa fie vizibil la colt de widget
         x = widget.winfo_rootx() - self.winfo_rootx()
         y = widget.winfo_rooty() - self.winfo_rooty() - 25
 

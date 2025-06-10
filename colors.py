@@ -1,4 +1,5 @@
 import colorsys
+from CTkColorPicker import *
 
 # ===== Color Utility Functions =====
 
@@ -63,3 +64,4 @@ def generate_tetradic_palette(base_hex):
     new_hue2 = (h + 180) % 360
     new_hue3 = (h + 270) % 360
     return [base_hex, hsl_to_hex(new_hue1, s, l), hsl_to_hex(new_hue2, s, l), hsl_to_hex(new_hue3, s, l)]
+
