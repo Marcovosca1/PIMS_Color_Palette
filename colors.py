@@ -41,27 +41,29 @@ def generate_analog_palette(base_hex, num_colors=5, step=30):
         palette.append(hsl_to_hex(new_hue, s, l))
     return palette
 
-def generate_complementary_palette(base_hex):
+def generate_complementary_palette(base_hex, num_colors=5):
     h, s, l = hex_to_hsl(base_hex)
-    new_hue = (h + 180) % 360
-    return [base_hex, hsl_to_hex(new_hue, s, l)]
+    palette = [hsl_to_hex((h + i * 180 / (num_colors - 1)) % 360, s, l) for i in range(num_colors)]
+    return palette
 
-def generate_split_complementary_palette(base_hex):
+def generate_split_complementary_palette(base_hex, num_colors=5):
     h, s, l = hex_to_hsl(base_hex)
-    new_hue1 = (h + 150) % 360
-    new_hue2 = (h + 210) % 360
-    return [base_hex, hsl_to_hex(new_hue1, s, l), hsl_to_hex(new_hue2, s, l)]
+    if num_colors < 2:
+        return [base_hex]
+    angle = 60  # spread
+    palette = [base_hex]
+    for i in range(1, num_colors):
+        offset = angle * (i - (num_colors - 1) // 2)
+        new_hue = (h + 180 + offset) % 360
+        palette.append(hsl_to_hex(new_hue, s, l))
+    return palette
 
-def generate_triadic_palette(base_hex):
+def generate_triadic_palette(base_hex, num_colors=5):
     h, s, l = hex_to_hsl(base_hex)
-    new_hue1 = (h + 120) % 360
-    new_hue2 = (h + 240) % 360
-    return [base_hex, hsl_to_hex(new_hue1, s, l), hsl_to_hex(new_hue2, s, l)]
+    angle = 360 / num_colors
+    return [hsl_to_hex((h + i * angle) % 360, s, l) for i in range(num_colors)]
 
-def generate_tetradic_palette(base_hex):
+def generate_tetradic_palette(base_hex, num_colors=5):
     h, s, l = hex_to_hsl(base_hex)
-    new_hue1 = (h + 90) % 360
-    new_hue2 = (h + 180) % 360
-    new_hue3 = (h + 270) % 360
-    return [base_hex, hsl_to_hex(new_hue1, s, l), hsl_to_hex(new_hue2, s, l), hsl_to_hex(new_hue3, s, l)]
-
+    angle = 360 / num_colors
+    return [hsl_to_hex((h + i * angle) % 360, s, l) for i in range(num_colors)]

@@ -124,7 +124,7 @@ class ColorApp(ctk.CTk):
             title_label.grid(row=row_idx, column=0, padx=(10, 20), pady=5, sticky="w")
 
             # Generează culorile
-            colors = func(self.base_color, self.num_colors) if label == "Analog" else func(self.base_color)
+            colors = func(self.base_color, self.num_colors)
 
             for col_idx, color in enumerate(colors):
                 swatch = ctk.CTkLabel(
@@ -145,10 +145,10 @@ class ColorApp(ctk.CTk):
     def export_palettes(self):
         palettes = {
             "Analog": generate_analog_palette(self.base_color, self.num_colors),
-            "Complementary": generate_complementary_palette(self.base_color),
-            "Split Complementary": generate_split_complementary_palette(self.base_color),
-            "Triadic": generate_triadic_palette(self.base_color),
-            "Tetradic": generate_tetradic_palette(self.base_color),
+            "Complementary": generate_complementary_palette(self.base_color, self.num_colors),
+            "Split Complementary": generate_split_complementary_palette(self.base_color, self.num_colors),
+            "Triadic": generate_triadic_palette(self.base_color, self.num_colors),
+            "Tetradic": generate_tetradic_palette(self.base_color, self.num_colors),
         }
 
         file_path = filedialog.asksaveasfilename(
